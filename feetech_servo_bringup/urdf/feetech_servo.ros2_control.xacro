@@ -10,7 +10,9 @@
                 servo_open_step:=2048
                 servo_closed_step:=3998 
                 gripper_open_pos:=0.05 
-                gripper_closed_pos:=0.0"
+                gripper_closed_pos:=0.0
+                servo_speed:=1.0
+                servo_acceleration:=1.0"
                 >
 
         <ros2_control name="${name}" type="system">
@@ -22,7 +24,7 @@
                 <xacro:unless value="${mock_hardware}">
                     <plugin>feetech_servo_hardware_interface/FeetechServoHardwareInterface</plugin>
 
-                    <param name="serial_port">${serial_port}</param>
+                    <param name="serial_port">${serial_port}</param> <!-- find with ls /dev/ttyUSB*  or /dev/ttyACM* -->
                     <param name="baud_rate">${baud_rate}</param>
                     <param name="servo_id">${servo_id}</param>
 
@@ -31,6 +33,10 @@
 
                     <param name="gripper_open_pos">${gripper_open_pos}</param>
                     <param name="gripper_closed_pos">${gripper_closed_pos}</param>
+
+                    <param name="servo_speed">${servo_speed}</param> <!-- (0-3400 steps/s) -->
+                    <param name="servo_acceleration">${servo_acceleration}</param> <!-- (0-254, units of 100 steps/s²) -->
+
                 </xacro:unless>
             </hardware>
 

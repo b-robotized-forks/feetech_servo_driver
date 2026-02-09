@@ -36,10 +36,8 @@ private:
     */
     SMS_STS servo_{0, 1};
 
-    // Helper to map physical units to servo steps
-    // TODO: rename to make more sense
-    int map_to_servo(double physical_pos);
-    double map_to_physical(int servo_pos);
+    int meters_2_servo_steps(double pos_meters);
+    double servo_steps_2_meters(int pos_steps);
 
     // Configuration Parameters
     std::string serial_port_;
@@ -50,8 +48,8 @@ private:
     int servo_closed_step_;
     double gripper_open_pos_;
     double gripper_closed_pos_;
-
-    // TODO: add more parameters, like open/close speed? max/min speed?
+    int servo_speed_;
+    int servo_acceleration_;
 };
 
 

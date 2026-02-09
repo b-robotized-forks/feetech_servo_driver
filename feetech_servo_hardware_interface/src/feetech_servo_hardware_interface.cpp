@@ -82,13 +82,14 @@ hardware_interface::CallbackReturn FeetechServoHardwareInterface::on_activate(
     }
 
     // Initialize command to current position to prevent jumps
-    int servo_pos = servo_.ReadPos(servo_id_);
-    if (servo_pos != -1)
+    int pos_steps_initial = servo_.ReadPos(servo_id_);
+    if (pos_steps_initial != -1)
     {        
-        // TODO: is this an ok default? should this be configurable
-        uint16_t speed = 2400;
-        uint8_t acc = 50;
-        servo_.WritePosEx(servo_id_, servo_pos, speed, acc);
+        double pos_meters_initial = servo_steps_2_meters(pos_steps_initial);
+        set_state(info_.joints[0].name + "/" + "position", pos_meters_initial);
+        set_command(info_.joints[0].name + "/" + "position", pos_meters_initial);
+
+        RCLCPP_INFO(getLogger(), "Initialized at servo pos: %d (%.4f m)", pos_steps_initial, pos_meters_initial);
     }
     else
     {
@@ -103,7 +104,7 @@ hardware_interface::CallbackReturn FeetechServoHardwareInterface::on_deactivate(
     const rclcpp_lifecycle::State & /*previous_state*/)
 {
     RCLCPP_INFO(getLogger(), "Disabling gripper servo torque...");
-    servo_.EnableTorque(servo_id_, 0);
+    servo_.EnableTorque(servo_id_, 0); // 0 = torque off
 
     return CallbackReturn::SUCCESS;
 }
@@ -114,7 +115,10 @@ hardware_interface::return_type FeetechServoHardwareInterface::read(
      // 1. Read Position
     int pos = servo_.ReadPos(servo_id_);
     if (pos != -1) {
-        set_state(info_.joints[0].name + "position", map_to_physical(pos));
+        set_state(info_.joints[0].name + "/" + "position", servo_steps_2_meters(pos));
+    } else {
+        RCLCPP_ERROR(getLogger(), "Failed to read servo POSITION");
+        return hardware_interface::return_type::ERROR;
     }
 
     int speed = servo_.ReadSpeed(servo_id_);
@@ -122,12 +126,18 @@ hardware_interface::return_type FeetechServoHardwareInterface::read(
         // unit: steps/s -> m/s
         double m_per_step = (gripper_open_pos_ - gripper_closed_pos_) / 
                             (double)(servo_open_step_ - servo_closed_step_);
-        set_state(info_.joints[0].name + "velocity", speed * m_per_step);
+        set_state(info_.joints[0].name + "/" + "velocity", speed * m_per_step);
+    } else {
+        RCLCPP_ERROR(getLogger(), "Failed to read servo VELOCITY");
+        return hardware_interface::return_type::ERROR;
     }
 
-    int torque = servo_.ReadLoad(servo_id_); // -1000 to 1000
+    int torque = servo_.ReadLoad(servo_id_); // -1000 to 1000, raw units for now
     if (torque != -1) {
-        set_state(info_.joints[0].name + "effort", torque);
+        set_state(info_.joints[0].name + "/" + "effort", static_cast<double>(torque));
+    } else {
+        RCLCPP_ERROR(getLogger(), "Failed to read servo EFFORT");
+        return hardware_interface::return_type::ERROR;
     }
 
     return hardware_interface::return_type::OK;
@@ -136,37 +146,35 @@ hardware_interface::return_type FeetechServoHardwareInterface::read(
 hardware_interface::return_type FeetechServoHardwareInterface::write(
     const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
-    double target_meters = get_command(info_.joints[0].name + "position");
+    double target_pos_meters = get_command(info_.joints[0].name + "/" + "position");
     
-    if (std::isnan(target_meters)) {
+    if (std::isnan(target_pos_meters)) {
         return hardware_interface::return_type::OK;
     }
 
-    int servo_target = map_to_servo(target_meters);
-    
-    // Hardcoded defaults similar to python script (speed=100 in script map)
-    // 2400 is a safe high speed for SCServo
-    // TODO: is this an ok default? should this be configurable
-    uint16_t speed = 2400;
-    uint8_t acc = 50;
-
-    servo_.WritePosEx(servo_id_, servo_target, speed, acc);
+    bool ok = servo_.WritePosEx(servo_id_, meters_2_servo_steps(target_pos_meters), servo_speed_, servo_acceleration_);
+    if (!ok) {
+        RCLCPP_ERROR(getLogger(), "Failed to write position!");
+        return hardware_interface::return_type::DEACTIVATE;
+    }
     return hardware_interface::return_type::OK;
 }
 
-int FeetechServoHardwareInterface::map_to_servo(double physical_pos)
+int FeetechServoHardwareInterface::meters_2_servo_steps(double pos_meters)
 {
   double p_min = std::min(gripper_closed_pos_, gripper_open_pos_);
   double p_max = std::max(gripper_closed_pos_, gripper_open_pos_);
-  double clamped = std::clamp(physical_pos, p_min, p_max);
+  double clamped = std::clamp(pos_meters, p_min, p_max);
 
+  // lerp, "how far along is the command from 0% to 100% open"
   double ratio = (clamped - gripper_closed_pos_) / (gripper_open_pos_ - gripper_closed_pos_);
+  
   double steps = servo_closed_step_ + ratio * (servo_open_step_ - servo_closed_step_);
   
   return static_cast<int>(steps);
 }
 
-double FeetechServoHardwareInterface::map_to_physical(int servo_pos)
+double FeetechServoHardwareInterface::servo_steps_2_meters(int servo_pos)
 {
   double ratio = (double)(servo_pos - servo_closed_step_) / (double)(servo_open_step_ - servo_closed_step_);
   return gripper_closed_pos_ + ratio * (gripper_open_pos_ - gripper_closed_pos_);
