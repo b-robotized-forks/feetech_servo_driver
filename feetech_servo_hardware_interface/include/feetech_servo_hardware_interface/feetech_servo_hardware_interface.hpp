@@ -28,7 +28,30 @@ public:
         const rclcpp::Time & time, const rclcpp::Duration & period) override;
 private:
     rclcpp::Logger getLogger() { return rclcpp::get_logger("FeetechServoHardwareInterface"); }
-    SMS_STS sm_st;
+    
+    //  SMS_STS(u8 End, u8 Level);
+    /* Constructor: with protocol end byte and response level
+	 * End: Protocol end byte (0 or 1)
+	 * Level: Response level (0=no response, 1=response enabled) 
+    */
+    SMS_STS servo_{0, 1};
+
+    // Helper to map physical units to servo steps
+    // TODO: rename to make more sense
+    int map_to_servo(double physical_pos);
+    double map_to_physical(int servo_pos);
+
+    // Configuration Parameters
+    std::string serial_port_;
+    int baud_rate_;
+    int servo_id_;
+    // Calibration
+    int servo_open_step_;
+    int servo_closed_step_;
+    double gripper_open_pos_;
+    double gripper_closed_pos_;
+
+    // TODO: add more parameters, like open/close speed? max/min speed?
 };
 
 

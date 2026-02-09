@@ -6,6 +6,21 @@
   <xacro:include filename="$(find feetech_servo_bringup)/urdf/feetech_servo.ros2_control.xacro"/>
 
   <link name="world"/>
+  <link name="link1"/>
+  <link name="link2"/>
+
+  <joint name="world-link1" type="fixed">
+    <parent link="world"/>
+    <child link="link1"/>
+    <limit effort="60" velocity="${radians(225)}" lower="${-2*pi}" upper="${2*pi}"/>
+  </joint>
+
+  <joint name="gripper_joint" type="revolute">
+    <parent link="link1"/>
+    <child link="link2"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="60" velocity="${radians(225)}" lower="${-2*pi}" upper="${2*pi}"/>
+  </joint>
 
   <xacro:feetech_servo_ros2_control
     name="feetech_gripper"
