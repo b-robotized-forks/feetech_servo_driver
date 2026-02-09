@@ -1,0 +1,17 @@
+<launch>
+    <arg name="mock_hardware" default="true" />
+
+    <let name="robot_description_content" value="$(command '$(find-exec xacro) $(find-pkg-share feetech_servo_bringup)/urdf/feetech_test.urdf.xacro mock_hardware:=$(var mock_hardware)')"/>
+
+    <!--robot_state_pub_node-->
+    <node pkg="robot_state_publisher" exec="robot_state_publisher" output="both">
+        <param name="robot_description" value="$(var robot_description_content)"/>
+    </node>
+
+    <!--control_node-->
+    <node pkg="controller_manager" exec="ros2_control_node" output="both">
+        <param name="robot_description" value="$(var robot_description_content)" />
+        <param from="$(find-pkg-share feetech_servo_bringup)/config/feetech_controllers.yaml"/>
+    </node>
+
+</launch>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="beckhoff_bot">
+
+  <xacro:arg name="mock_hardware" default="false"/>
+
+  <xacro:include filename="$(find feetech_servo_bringup)/urdf/feetech_servo.ros2_control.xacro"/>
+
+  <link name="world"/>
+
+  <xacro:feetech_servo_ros2_control
+    name="feetech_gripper"
+    mock_hardware="$(arg mock_hardware)"/>
+
+</robot>
