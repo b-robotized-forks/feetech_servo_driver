@@ -1,0 +1,9 @@
+<library path="feetech_servo_hardware_interface">
+  <class name="feetech_servo_hardware_interface/FeetechServoHardwareInterface"
+         type="feetech_servo_hardware_interface::FeetechServoHardwareInterface"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      ros2_control hardware interface for Feetech servos.
+    </description>
+  </class>
+</library>
