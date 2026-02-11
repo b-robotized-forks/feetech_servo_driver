@@ -28,7 +28,7 @@
                     <param name="baud_rate">${baud_rate}</param>
                     <param name="servo_id">${servo_id}</param>
 
-                    <!-- mappings: servo open/close (in steps) & physical open/close (in m) -->
+                    <!-- mappings - servo open/close (in steps) & physical open/close (in m) -->
                     <param name="servo_open_step">${servo_open_step}</param>
                     <param name="servo_closed_step">${servo_closed_step}</param>
 
