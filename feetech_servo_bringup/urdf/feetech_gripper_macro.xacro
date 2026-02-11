@@ -37,7 +37,7 @@
     </link>
     <joint
         name="GRIPPER_HAND_JOINT"
-        type="revolute">
+        type="fixed">
         <origin
         xyz="0 0.0 0"
         rpy="0 0 0" />
@@ -45,13 +45,6 @@
         link="${parent}" />
         <child
         link="GRIPPER_HAND" />
-        <axis
-        xyz="0 0 1" />
-        <limit
-        lower="-6.28"
-        upper="6.28"
-        effort="0"
-        velocity="0.1" />
     </joint>
     <link
         name="LINK_GRIPPER_FINGER_LEFT">
