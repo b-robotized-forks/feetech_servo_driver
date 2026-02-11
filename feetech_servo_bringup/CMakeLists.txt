@@ -3,7 +3,7 @@ project(feetech_servo_bringup)
 find_package(ament_cmake REQUIRED)
 
 install(
-  DIRECTORY config launch urdf
+  DIRECTORY config launch urdf meshes
   DESTINATION share/${PROJECT_NAME}
 )
 

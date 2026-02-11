@@ -1,0 +1,230 @@
+<?xml version="1.0" ?>
+<robot name="feetech_gripper" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="feetech_gripper" params="prefix parent *origin">
+
+    <link
+        name="GRIPPER_HAND">
+        <inertial>
+        <xacro:insert_block name="origin" />
+        <mass
+            value="0.323720082684131" />
+        <inertia
+            ixx="0.000122394157358032"
+            ixy="-7.30144576784438E-07"
+            ixz="-2.57713861881115E-08"
+            iyy="0.000292943792273597"
+            iyz="7.000917344086E-07"
+            izz="0.000345320596747886" />
+        </inertial>
+        <visual>
+        <geometry>
+            <mesh
+            filename="package://feetech_servo_bringup/meshes/GRIPPER_HAND.STL" />
+        </geometry>
+        <material
+            name="">
+            <color
+            rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+        </material>
+        </visual>
+        <collision>
+        <geometry>
+            <mesh
+            filename="package://feetech_servo_bringup/meshes/GRIPPER_HAND.STL" />
+        </geometry>
+        </collision>
+    </link>
+    <joint
+        name="GRIPPER_HAND_JOINT"
+        type="revolute">
+        <origin
+        xyz="0 0.0 0"
+        rpy="0 0 0" />
+        <parent
+        link="${parent}" />
+        <child
+        link="GRIPPER_HAND" />
+        <axis
+        xyz="0 0 1" />
+        <limit
+        lower="-6.28"
+        upper="6.28"
+        effort="0"
+        velocity="0.1" />
+    </joint>
+    <link
+        name="LINK_GRIPPER_FINGER_LEFT">
+        <inertial>
+        <origin
+            xyz="0.0174999918986221 0.0346500735745029 0.0304861060003518"
+            rpy="0 0 0" />
+        <mass
+            value="0.0518513567293559" />
+        <inertia
+            ixx="2.19007232416626E-05"
+            ixy="7.28800500028202E-13"
+            ixz="-3.52256878494898E-13"
+            iyy="1.10246791830841E-05"
+            iyz="-3.67703089048622E-06"
+            izz="2.81929756450263E-05" />
+        </inertial>
+        <visual>
+        <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+        <geometry>
+            <mesh
+            filename="package://feetech_servo_bringup/meshes/J7.STL" />
+        </geometry>
+        <material
+            name="">
+            <color
+            rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+        </material>
+        </visual>
+        <collision>
+        <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+        <geometry>
+            <mesh
+            filename="package://feetech_servo_bringup/meshes/J7.STL" />
+        </geometry>
+        </collision>
+    </link>
+
+    <!-- LEFT FINGER (ACTUATED) -->
+    <joint
+        name="GRIPPER_FINGER_LEFT"
+        type="prismatic">
+        <origin
+            xyz="-0.08 -0.0175 0.0928"
+            rpy="1.5708 0 1.5708" />
+        <parent
+            link="GRIPPER_HAND" />
+        <child
+            link="LINK_GRIPPER_FINGER_LEFT" />
+        <axis
+            xyz="0 0 -1" />
+        <limit
+            lower="-0.037"
+            upper="0.01"
+            effort="0"
+            velocity="0.1" />
+    </joint>
+    <link
+        name="LINK_GRIPPER_FINGER_RIGHT">
+        <inertial>
+        <origin
+            xyz="-0.0174999918981328 -0.0346500735744119 0.0304861060002286"
+            rpy="0 0 0" />
+        <mass
+            value="0.0518513567293545" />
+        <inertia
+            ixx="2.19007232416618E-05"
+            ixy="7.28827479808301E-13"
+            ixz="3.52247597946214E-13"
+            iyy="1.10246791830595E-05"
+            iyz="3.67703089042956E-06"
+            izz="2.81929756450495E-05" />
+        </inertial>
+        <visual>
+        <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+        <geometry>
+            <mesh
+            filename="package://feetech_servo_bringup/meshes/J8.STL" />
+        </geometry>
+        <material
+            name="">
+            <color
+            rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+        </material>
+        </visual>
+        <collision>
+        <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+        <geometry>
+            <mesh
+            filename="package://feetech_servo_bringup/meshes/J8.STL" />
+        </geometry>
+        </collision>
+    </link>
+
+    <!-- RIGHT FINGER (MIMIC) -->
+    <joint
+        name="GRIPPER_FINGER_RIGHT"
+        type="prismatic">
+        <origin
+        xyz="0.08 0.0175 0.0928"
+        rpy="-1.5708 0 1.5708" />
+        <parent
+        link="GRIPPER_HAND" />
+        <child
+        link="LINK_GRIPPER_FINGER_RIGHT" />
+        <axis
+        xyz="0 0 -1" />
+        <limit
+        lower="-0.037"
+        upper="0.01"
+        effort="0"
+        velocity="0.1" />
+        <mimic 
+            joint="GRIPPER_FINGER_LEFT" 
+            multiplier="1" 
+            offset="0"/>
+    </joint>
+        <link
+        name="tool_center">
+        <inertial>
+        <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+        <mass
+            value="0" />
+        <inertia
+            ixx="0"
+            ixy="0"
+            ixz="0"
+            iyy="0"
+            iyz="0"
+            izz="0" />
+        </inertial>
+        <visual>
+        <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+        <geometry>
+            <sphere radius="0.001"/>  <!-- Optional - small visual marker -->
+        </geometry>
+        <material
+            name="">
+            <color
+            rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+        </material>
+        </visual>
+    </link>
+    <joint
+        name="tool_joint"
+        type="fixed">
+        <origin
+        xyz="0 0 0.2"
+        rpy="0 0 0" />
+        <parent
+        link="GRIPPER_HAND" />
+        <child
+        link="tool_center" />
+        <axis
+        xyz="0 0 -1" />
+        <limit
+        lower="-0.037"
+        upper="0.01"
+        effort="0"
+        velocity="0.1" />
+    </joint>
+
+</xacro:macro>
+</robot>
