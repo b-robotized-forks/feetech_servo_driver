@@ -7,10 +7,10 @@
                 serial_port:=/dev/ttyUSB0 
                 baud_rate:=1000000 
                 servo_id:=22 
-                servo_open_step:=2048
-                servo_closed_step:=3998 
-                gripper_open_pos:=0.05 
-                gripper_closed_pos:=0.0
+                servo_open_step:=3998
+                servo_closed_step:=2048
+                gripper_open_pos:=0.01 
+                gripper_closed_pos:=-0.037
                 servo_speed:=1.0
                 servo_acceleration:=1.0"
                 >
