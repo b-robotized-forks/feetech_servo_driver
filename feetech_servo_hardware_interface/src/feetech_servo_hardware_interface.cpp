@@ -116,6 +116,7 @@ hardware_interface::return_type FeetechServoHardwareInterface::read(
     int pos = servo_.ReadPos(servo_id_);
     if (pos != -1) {
         set_state(info_.joints[0].name + "/" + "position", servo_steps_2_meters(pos));
+        set_state(info_.joints[0].name + "/" + "steps", static_cast<double>(pos));
     } else {
         RCLCPP_ERROR(getLogger(), "Failed to read servo POSITION");
         return hardware_interface::return_type::ERROR;
